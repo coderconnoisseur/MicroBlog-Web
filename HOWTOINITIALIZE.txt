@@ -1,0 +1,305 @@
+Create three files :
+	routes.py
+	init.py
+	config.py
+	
+Create virtual environment:
+	python -m venv venv
+
+Activate virtual environment:
+	.\venv\Scripts\Activate
+
+Install flask:
+	pip install flask
+
+
+
+
+app is instance of flask 
+/__init__.py:
+	```
+	 from flask import Flask 
+	 app = Flask(__name__)
+	 from Projectdir import routes
+	 ```
+
+
+/PY2/Projectdir/PY2.py
+	from Projectdir import app
+
+
+/routes.py
+	from Projectdir import app
+	
+$ pip install python-dotenv
+create /PY2/.flaskenv
+	FLASK_APP=PY2.py
+
+$ pip install flask-wtf
+
+forms.py
+	from flask_wtf import FlaskForm
+	from wtforms import StringField, PasswordField, BooleanField, SubmitField
+	from wtforms.validators import DataRequired
+	class LoginForm(FlaskForm):
+	username = StringField('Username', validators=[DataRequired()])
+	password = PasswordField('Password', validators=[DataRequired()])
+	remember_me = BooleanField('Remember Me')
+	submit = SubmitField('Sign In')
+
+login.html:
+	{% extends "base.html" %}
+	{% block content %}
+	<h1>Sign In</h1>
+	<form action="" method="post" novalidate>
+	{{ form.hidden_tag() }}
+	<p>
+	{{ form.username.label }}<br>
+	{{ form.username(size=32) }}
+	</p>
+	<p>
+	{{ form.password.label }}<br>
+	{{ form.password(size=32) }}
+	</p>
+	<p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+	<p>{{ form.submit() }}</p>
+	</form>
+	{% endblock %}
+
+DATABASE:
+	pip install flask-sqlalchemy
+	pip install flask-migrate
+
+AFTER THIS:
+config.py:
+	import os
+	basedir = os.path.abspath(os.path.dirname(__file__))
+	class Config(object):
+    	SECRET_KEY= os.environ.get('SECRET_KEY') or 'you-will-never-guess-it'
+    	SQLALCHEMY_DATABASE_URL= os.environ.get('DATABASE_URL') or 'sqlite:///'+ os.path.join(basedir,'app.db')
+    	SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+__init__.py(add):
+	from flask_sqlalchemy import SQLalchemy 
+	from flask_migrate import Migrate 
+	app.config.from_object(Config)
+	db=SQLalchemy(app)
+	migrate = Migrate(app,db)
+	from app import routes,models
+
+models.py:
+	from Projectdir import db
+	from flask_sqlalchemy import SQLAlchemy
+	class User(db.Model):
+    	id = db.Column(db.Integer,primary_key = True)
+    	username = db.Column(db.String(64),index=True,unique = True)
+    	email = db.Column(db.String(120),index=True,unique=True)
+    	password_hash = db.Column(db.String(120))
+    
+    	def __repr__(self):
+	        return (f'User {self.username}')
+
+$flask db init
+$flask db upgrade 
+
+
+ONE TO MANY RELATIONSHIP
+
+class User(db.Model):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer,primary_key = True)
+    username = db.Column(db.String(64),index=True,unique = True)
+    email = db.Column(db.String(120),index=True,unique=True)
+    password_hash = db.Column(db.String(120))
+important >>>>posts = db.relationship('Post',backref = 'author ' ,lazy = 'dynamic')
+>>> backref will add field to object of 'many' class and that will return the ONE 
+>>> post.author will return user
+    def __repr__(self):
+        return (f'User {self.username}')
+    
+class Post(db.Model):
+    id = db.Column(db.Integer , primary_key = True)
+    body = db.Column(db.String(140))
+    timestamp = db.Column(db.DateTime,index = True,default = datetime.utcnow)
+    user_id = db.Column(db.Integer , db.ForeignKey('user.id'))
+    
+    def __repr__(self):
+        return (f'Post {self.body}')
+
+EVERYTIME U MAKE CHANGES TO DB ,
+$ flask db migrate 
+$ flask db upgrade 
+
+we can check:
+$flask shell
+>>> from Projectdir import db
+>>> from PRojectdir.models import User,Post
+>>> u = User(username='Nishant' , email = 'nishantborkar28@gmail.com')
+>>> db.session.add(u)
+and u can add several changes 
+>>>db.session.commit()
+if there is an error , use 
+>>>db.session.rollback()
+
+return all the users 
+>>> users = User.query.all()
+>>> print(users)
+>>> for user in users:
+		print(user.id , user.username)
+
+if u know the id , here's how to query
+>>>User.query.get(1)
+
+
+TO DELETE SOMETHING FROM DATABASE:
+db.session.delete(THAT object)
+
+
+PASSWORD HASHING
+from werkzeug import check_password_hash , generate_password_hash
+generate_password_hash takes a string arg and hashes it
+check_password_hash takes two args and cross checks each other and returns bool 
+
+$pip install flask-login	
+
+__init__.py:
+	from flask_login import LoginManager
+	login = LoginManager(app)
+
+models.py:
+	from flask_login import UserMixin
+	class User(UserMixin,db)
+
+models.py
+	from app import login
+	# ...
+	@login.user_loader
+	def load_user(id):
+	return User.query.get(int(id))
+
+routes.py
+from flask_login import current_user, login_user
+from app.models import User
+# ...
+@app.route('/login', methods=['GET', 'POST'])
+	def login():
+		if current_user.is_authenticated:
+			return redirect(url_for('index'))
+		form = LoginForm()
+		if form.validate_on_submit():
+			user = User.query.filter_by(username=form.username.data).first()
+			if user is None or not user.check_password(form.password.data):
+				flash('Invalid username or password')
+				return redirect(url_for('login'))
+		login_user(user, remember=form.remember_me.data)
+		return redirect(url_for('index'))
+	return render_template('login.html', title='Sign In', form=form)
+
+current_user returns the current user object that is signed in 
+is is_authenticated checks whether that user is logged in or not
+if username exists and password for that is correct then we have to login 
+login_user takes two args , user and remember and some other too, (crtl + click)
+
+routes.py
+rom flask_login import logout_user
+# ...
+@app.route('/logout')
+def logout():
+	logout_user()
+	return redirect(url_for('index'))
+
+editing the base.html:
+<div>
+Microblog:
+<a href="{{ url_for('index') }}">Home</a>
+{% if current_user.is_anonymous %}
+<a href="{{ url_for('login') }}">Login</a>
+{% else %}
+<a href="{{ url_for('logout') }}">Logout</a>
+{% endif %}
+</div
+
+current_user.is_anonymous is true when user is not logged in
+
+FORCING A USER TO Login
+__init__.py:
+login = LoginManager(app)
+login.login_view = 'login'
+
+login_view will take string that refers to view function of login page , here ,'login'
+
+Protecting other view function against non logged in users
+routes.py:
+from flask_login import login_required
+	@app.route('/')
+	@app.route('/index')
+	@login_required
+	def index():
+
+ADD @login_required decorator to protect view functions
+
+NOW when the login required intercepts the page , we need to redirect the user , wherever he was
+so we need to add extra info to url for example /login?next=/index
+	After ? there is a query which tells where to redirect next
+
+from flask import request
+from urllib.parse import urlparse
+@app.route('/login',methods=['GET','POST'])
+def login():
+    form = LoginForm()
+    if current_user.is_authenticated: 
+        return redirect(url_for('index'))
+    if form.validate_on_submit():
+        user=User.query.filter_by(username=form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash('INVALID USERNAME OR PASSWORD')
+            return redirect(url_for('login'))
+        login_user(user,remember=form.remember_me.data)
+        next_page = request.args.get('next')
+        if not next_page or urlparse(next_page).netloc !='':
+            next_page = url_for('index')
+        return redirect(next_page)
+    return render_template('login.html',form = form,title = 'Sign in')
+
+it will redirect me to index if i originally landed on login (i.e. no query is loaded)
+hence no next_page or urlparse(next_page).netloc!='' it means if the next_page is out of my website
+i wont allow redirect and hence redirect to index (netloc means network location(search))
+
+SHOWING THE LOGGED IN USER'S NAME
+index.html 
+	{% extends "base.html" %}
+{% block content %}
+<h1>Hi, {{ current_user.username }}!</h1>
+{% for post in posts %}
+<div><p>{{ post.author.username }} says: <b>{{ post.body }}</b></p></div>
+{% endfor %}
+{% endblock %}
+
+
+User REGISTRATION
+WE'LL make a form
+
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from app.models import User
+# ...
+class RegistrationForm(FlaskForm):
+	username = StringField('Username', validators=[DataRequired()])
+	email = StringField('Email', validators=[DataRequired(), Email()])
+	password = PasswordField('Password', validators=[DataRequired()])
+	password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
+	submit = SubmitField('Register')
+
+	def validate_username(self, username):
+		user = User.query.filter_by(username=username.data).first()
+		if user is not None:
+			raise ValidationError('Please use a different username.')
+
+	def validate_email(self, email):
+		user = User.query.filter_by(email=email.data).first()
+		if user is not None:
+			raise ValidationError('Please use a different email address.')
+
+TO USE EMAIL VALIDATOR OF FLASK U NEED TO USE 
+(venv) $ pip install email-validator
