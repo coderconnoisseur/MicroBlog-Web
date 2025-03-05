@@ -301,5 +301,261 @@ class RegistrationForm(FlaskForm):
 		if user is not None:
 			raise ValidationError('Please use a different email address.')
 
-TO USE EMAIL VALIDATOR OF FLASK U NEED TO USE 
+TO USE EMAIL() VALIDATOR OF FLASK U NEED TO USE 
 (venv) $ pip install email-validator
+
+in case the email or username already exists we raise error which will be displayed below field
+validate_<field> is one of the special method
+
+USER REGISTRATION
+
+from app import db
+from app.forms import RegistrationForm
+# ...
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+	if current_user.is_authenticated:
+		return redirect(url_for('index'))
+	form = RegistrationForm()
+	if form.validate_on_submit():
+		user = User(username=form.username.data, email=form.email.data)
+		user.set_password(form.password.data)
+		db.session.add(user)
+		db.session.commit()
+		flash('Congratulations, you are now a registered user!')
+		return redirect(url_for('login'))
+	return render_template('register.html', title='Register', form=form)
+
+profile view 
+
+@app.route('/user/<username>')
+@login_required
+def user(username):
+	user = User.query.filter_by(username=username).first_or_404()
+	posts = [
+	{'author': user, 'body': 'Test post #1'},
+	{'author': user, 'body': 'Test post #2'}
+	]
+	return render_template('user.html', user=user, posts=posts)
+
+
+	user.html
+
+	{% extends "base.html" %}
+{% block content %}
+<h1>User: {{ user.username }}</h1>
+<hr>
+{% for post in posts %}
+<p>
+{{ post.author.username }} says: <b>{{ post.body }}</b>
+</p>
+{% endfor %}
+{% endblock %}
+
+base.html
+(give the link to profile page)
+
+<div>
+Microblog:
+<a href="{{ url_for('index') }}">Home</a>
+{% if current_user.is_anonymous %}
+<a href="{{ url_for('login') }}">Login</a>
+{% else %}
+>>>>>>>> MAIN LINE <a href="{{ url_for('user', username=current_user.username) }}">Profile</a>
+<a href="{{ url_for('logout') }}">Logout</a>
+{% endif %}
+</div>
+
+
+* EVERYTIME MODEL IS UPDATE USE $flask db migrate
+$flask db update 
+last seen
+MODELS.PY
+
+class User(UserMixin, db.Model):
+# ...
+about_me = db.Column(db.String(140))
+last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+
+user.html
+{% extends "base.html" %}
+{% block content %}
+<table>
+<tr valign="top">
+<td><img src="{{ user.avatar(128) }}"></td>
+<td>
+<h1>User: {{ user.username }}</h1>
+{% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+{% if user.last_seen %}<p>Last seen on: {{ user.last_seen }}</p>{% endif
+</td>
+</tr>
+</table>
+...
+{% endblock %}
+
+
+
+RECORD TIME OF LAST SEEN
+from datetime import datetime
+@app.before_request
+def before_request():
+if current_user.is_authenticated:
+current_user.last_seen = datetime.utcnow()
+db.session.commit()
+
+>>>>>> @app.before_request is decorator which allows a function to get called before every other method
+forms.py
+
+
+
+from wtforms import StringField, TextAreaField, SubmitField
+from wtforms.validators import DataRequired, Length
+# ...
+class EditProfileForm(FlaskForm):
+	username = StringField('Username', validators=[DataRequired()])
+	about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
+	submit = SubmitField('Submit')
+
+edit_profile.html
+
+{% extends "base.html" %}
+{% block content %}
+<h1>Edit Profile</h1>
+<form action="" method="post">
+{{ form.hidden_tag() }}
+<p>
+{{ form.username.label }}<br>
+{{ form.username(size=32) }}<br>
+{% for error in form.username.errors %}
+<span style="color: red;">[{{ error }}]</span>
+{% endfor %}
+</p>
+<p>
+{{ form.about_me.label }}<br>
+{{ form.about_me(cols=50, rows=4) }}<br>
+{% for error in form.about_me.errors %}
+<span style="color: red;">[{{ error }}]</span>
+{% endfor %}
+</p>
+<p>{{ form.submit() }}</p>
+</form>
+{% endblock %}	
+
+editprofile view function routes.python
+from app.forms import EditProfileForm
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+form = EditProfileForm()
+if form.validate_on_submit():
+current_user.username = form.username.data
+current_user.about_me = form.about_me.data
+db.session.commit()
+flash('Your changes have been saved.')
+return redirect(url_for('edit_profile'))
+elif request.method == 'GET':
+form.username.data = current_user.username
+form.about_me.data = current_user.about_me
+return render_template('edit_profile.html', title='Edit Profile',
+form=form
+
+
+
+his view function processes the form in a slightly different way. If
+validate_on_submit() returns True I copy the data from the form into
+the user object and then write the object to the database. But when
+validate_on_submit() returns False it can be due to two different
+reasons. First, it can be because the browser just sent a GET request,
+which I need to respond by providing an initial version of the form
+template. It can also be when the browser sends a POST request with
+form data, but something in that data is invalid. For this form, I need
+to treat these two cases separately. When the form is being requested
+for the first time with a GET request, I want to pre-populate the fields
+with the data that is stored in the database, so I need to do the reverse
+of what I did on the submission case and move the data stored in the
+user fields to the form, as this will ensure that those form fields have
+the current data stored for the user. But in the case of a validation
+error I do not want to write anything to the form fields, because those
+were already populated by WTForms. To distinguish between these
+two cases, I check request.method, which will be GET for the initial
+request, and POST for a submission that failed validation
+
+
+
+
+user.html 
+{% if user == current_user %}
+<p><a href="{{ url_for('edit_profile') }}">Edit your profile</a></p>
+{% endif %}	
+
+
+
+DEBUG MODE 
+$env:FLASK_DEBUG = "1"
+
+
+errors.py
+from flask import render_template
+from app import app, db
+@app.errorhandler(404)
+def not_found_error(error):
+return render_template('404.html'), 404
+@app.errorhandler(500)
+def internal_error(error):
+db.session.rollback()
+return render_template('500.html'), 500
+
+
+
+
+The error functions work very similarly to view functions. For these
+two errors, I’m returning the contents of their respective templates.
+Note that both functions return a second value after the template,
+which is the error code number. For all the view functions that I
+created so far, I did not need to add a second return value because the
+default of 200 (the status code for a successful response) is what I
+wanted. In this case these are error pages, so I want the status code of
+the response to reflect that.
+The error handler for the 500 errors could be invoked after a database
+error, which was actually the case with the username duplicate above.
+To make sure any failed database sessions do not interfere with any
+database accesses triggered by the template, I issue a session rollback.
+This resets the session to a clean state
+
+
+404.html 
+
+
+{% extends "base.html" %}
+{% block content %}
+<h1>File Not Found</h1>
+<p><a href="{{ url_for('index') }}">Back</a></p>
+{% endblock %}
+
+
+500.html
+{% extends "base.html" %}
+{% block content %}
+<h1>An unexpected error has occurred</h1>
+<p>The administrator has been notified. Sorry for the inconvenience!</p>
+<p><a href="{{ url_for('index') }}">Back</a></p>
+{% endblock %}
+
+
+__init__.py 
+from app import routes, models, errors
+
+
+
+SENDING ERROR EMAILS
+config.py
+class Config(object):
+# ...
+MAIL_SERVER = os.environ.get('MAIL_SERVER')
+MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
+MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
+MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+ADMINS = ['your-email@example.com']
