@@ -43,7 +43,7 @@ A feature-rich microblogging platform built with Flask, allowing users to post u
 
 1. Clone the repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/coderconnoisseur/MicroBlog-Web.git
 cd <project-directory>
 
 2. Create and activate virtual environment
