@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: microblog
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: flask run --host 0.0.0.0
+    envVars:
+      - key: FLASK_APP
+        value: PY2.py
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///app.db
