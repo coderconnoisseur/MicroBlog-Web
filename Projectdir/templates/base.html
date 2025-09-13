@@ -127,6 +127,19 @@
             </ul>
           </div>
           
+          {% if g.search_form %}
+          <div class="hidden md:flex items-center mx-4">
+            <form class="flex items-center" method="get" action="{{ url_for('search') }}">
+              <div class="relative">
+                {{ g.search_form.q(size=20, class='w-64 px-4 py-2 pr-10 text-sm border border-gray-300 rounded-lg bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500', placeholder=g.search_form.q.label.text) }}
+                <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600 transition-colors">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+          {% endif %}
+          
           <div class="hidden md:flex items-center space-x-2 sm:space-x-3">
             <ul class="flex">
               {% if current_user.is_anonymous %}
@@ -175,6 +188,18 @@
               <i class="fas fa-search mr-2"></i>Explore
             </a>
           </li>
+          {% if g.search_form %}
+          <li class="px-4 py-2">
+            <form method="get" action="{{ url_for('search') }}">
+              <div class="relative">
+                {{ g.search_form.q(size=20, class='w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500', placeholder=g.search_form.q.label.text) }}
+                <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600 transition-colors">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </form>
+          </li>
+          {% endif %}
           {% if current_user.is_anonymous %}
           <li class="px-4 py-2">
             <a href="{{ url_for('login') }}" class="block py-2 px-4 text-sm font-medium text-white bg-gradient-to-r from-primary-500 to-violet-600 rounded-lg hover:from-primary-600 hover:to-violet-700 transition-colors text-center">

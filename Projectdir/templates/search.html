@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Search Results Header -->
+    <div class="mb-8 animate-fade-in">
+        <div class="glass-effect rounded-xl p-6 border border-white/20 shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                        <i class="fas fa-search text-primary-500 mr-3"></i>
+                        Search Results
+                    </h1>
+                    {% if request.args.get('q') %}
+                    <p class="text-gray-600">
+                        Showing results for: 
+                        <span class="font-semibold text-primary-600 bg-primary-50 px-3 py-1 rounded-full text-sm">
+                            "{{ request.args.get('q') }}"
+                        </span>
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="hidden sm:block">
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="fas fa-clock mr-2"></i>
+                        <span>{{ posts|length }} result{{ 's' if posts|length != 1 else '' }} found</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results Content -->
+    {% if posts %}
+    <div class="space-y-6 animate-slide-up">
+        {% for post in posts %}
+            <div class="transform transition-all duration-300 hover:scale-105">
+                {% include '_post.html' %}
+            </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- No Results Found -->
+    <div class="glass-effect rounded-xl p-8 text-center border border-white/20 shadow-lg animate-slide-up">
+        <div class="mb-4">
+            <i class="fas fa-search text-6xl text-gray-300"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">No results found</h3>
+        <p class="text-gray-500 mb-6">
+            Try searching with different keywords or check your spelling.
+        </p>
+        <a href="{{ url_for('Explore') }}" 
+           class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-500 to-violet-600 text-white font-medium rounded-xl hover:from-primary-600 hover:to-violet-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+            <i class="fas fa-compass mr-2"></i>
+            Explore All Posts
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Pagination -->
+    {% if prev_url or next_url %}
+    <nav class="flex items-center justify-between mt-8 animate-slide-up" aria-label="Search Results Pagination">
+        <div class="flex-1">
+            {% if prev_url %}
+            <a href="{{ prev_url }}" 
+               class="group relative inline-flex items-center px-6 py-3 text-sm font-medium text-gray-700 glass-effect rounded-xl hover:text-primary-600 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 border border-white/20">
+                <svg class="w-5 h-5 mr-2 group-hover:text-primary-500 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                <span class="hidden sm:inline">Previous Results</span>
+                <span class="sm:hidden">Previous</span>
+            </a>
+            {% else %}
+            <div class="relative inline-flex items-center px-6 py-3 text-sm font-medium text-gray-400 bg-gray-100/50 rounded-xl cursor-not-allowed border border-gray-200/50">
+                <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                <span class="hidden sm:inline">Previous Results</span>
+                <span class="sm:hidden">Previous</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="flex-1 flex justify-end">
+            {% if next_url %}
+            <a href="{{ next_url }}" 
+               class="group relative inline-flex items-center px-6 py-3 text-sm font-medium text-gray-700 glass-effect rounded-xl hover:text-primary-600 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 border border-white/20">
+                <span class="hidden sm:inline">Next Results</span>
+                <span class="sm:hidden">Next</span>
+                <svg class="w-5 h-5 ml-2 group-hover:text-primary-500 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+            </a>
+            {% else %}
+            <div class="relative inline-flex items-center px-6 py-3 text-sm font-medium text-gray-400 bg-gray-100/50 rounded-xl cursor-not-allowed border border-gray-200/50">
+                <span class="hidden sm:inline">Next Results</span>
+                <span class="sm:hidden">Next</span>
+                <svg class="w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Back to Search Tips -->
+    <div class="mt-8 glass-effect rounded-xl p-6 border border-white/20 shadow-lg animate-slide-up">
+        <h4 class="text-lg font-semibold text-gray-800 mb-3">
+            <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+            Search Tips
+        </h4>
+        <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+            <div class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                <span>Use specific keywords for better results</span>
+            </div>
+            <div class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                <span>Search is case-insensitive</span>
+            </div>
+            <div class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                <span>Try different variations of words</span>
+            </div>
+            <div class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                <span>Shorter queries often work better</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Additional search-specific animations */
+.search-highlight {
+    background: linear-gradient(120deg, #fef3c7 0%, #fbbf24 100%);
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.5s ease-out forwards;
+}
+
+/* Hover effects for search results */
+.hover\:scale-105:hover {
+    transform: scale(1.02);
+}
+
+/* Enhanced glass effect for search page */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+</style>
+{% endblock %}

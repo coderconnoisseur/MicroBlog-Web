@@ -1,17 +1,26 @@
-<table class="table table-hover">
-    <tr>
-    <td width="70px">
-    <a href="{{ url_for('user', username=post.author.username) }}">
-    <img src="{{ post.author.avatar(70) }}" />
-    </a>
-    </td>
-    <td>
-    <a href="{{ url_for('user', username=post.author.username) }}">
-    {{ post.author.username }}
-    </a>
-    said {{ moment(post.timestamp).fromNow() }}:
-    <br>
-    {{ post.body }}
-    </td>
-    </tr>
-    </table>
+<div class="glass-effect rounded-xl p-6 shadow-md border border-white/20 hover:shadow-lg transition-all duration-300">
+    <div class="flex items-start space-x-4">
+        <div class="flex-shrink-0">
+            <a href="{{ url_for('user', username=post.author.username) }}" class="block">
+                <img src="{{ post.author.avatar(50) }}" 
+                     class="w-12 h-12 rounded-full ring-2 ring-primary-100 hover:ring-primary-300 transition-all duration-300" 
+                     alt="{{ post.author.username }}'s avatar"/>
+            </a>
+        </div>
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center space-x-2 mb-2">
+                <a href="{{ url_for('user', username=post.author.username) }}" 
+                   class="font-semibold text-gray-900 hover:text-primary-600 transition-colors">
+                    {{ post.author.username }}
+                </a>
+                <span class="text-gray-400">•</span>
+                <span class="text-sm text-gray-500">
+                    {{ moment(post.timestamp).fromNow() }}
+                </span>
+            </div>
+            <div class="text-gray-800 text-sm leading-relaxed">
+                {{ post.body }}
+            </div>
+        </div>
+    </div>
+</div>

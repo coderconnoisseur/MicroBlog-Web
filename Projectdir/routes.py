@@ -1,12 +1,13 @@
 from Projectdir import app,db,login,limiter
-from flask import render_template , redirect,flash,url_for,request
+from flask import current_app, render_template , redirect,flash,url_for,request
 from Projectdir.forms import LoginForm ,EditProfileForm,EmptyForm,PostForm,ResetPasswordRequestForm,RegistrationForm,ResetPasswordForm
 from flask_login import current_user,login_user,logout_user,login_required
 from Projectdir.models import User,Post
 from urllib.parse import urlparse
 from Projectdir.email import send_password_reset_email
 from datetime import datetime   
-
+from flask import g
+from Projectdir.forms import searchForm
 
 @app.route('/',methods=['GET','POST'])
 @app.route('/index',methods=['GET','POST'])
@@ -88,8 +89,9 @@ def user(username):
 @app.before_request
 def before_request():
     if current_user.is_authenticated:
-        current_user.last_seen=datetime.utcnow()
+        current_user.last_seen = datetime.utcnow()
         db.session.commit()
+        g.search_form = searchForm()
         
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
@@ -229,4 +231,36 @@ def health_check():
         'version': '1.0.0'
     })
 
-        
+@app.route('/search')
+@login_required
+def search():
+    # Get search query from URL parameters
+    query = request.args.get('q', '').strip()
+    
+    # If no query provided, redirect to explore
+    if not query:
+        return redirect(url_for('Explore'))
+    
+    page = request.args.get('page', 1, type=int)
+    
+    # Try Elasticsearch first, fall back to database search
+    try:
+        posts, total = Post.search(query, page, current_app.config['POSTS_PER_PAGE'])
+    except Exception as e:
+        # Fallback to simple database search if Elasticsearch is not available
+        posts_query = Post.query.filter(Post.body.contains(query)).order_by(Post.timestamp.desc())
+        posts_pagination = posts_query.paginate(
+            page=page, 
+            per_page=current_app.config['POSTS_PER_PAGE'], 
+            error_out=False
+        )
+        posts = posts_pagination.items
+        total = posts_pagination.total
+    
+    next_url = url_for('search', q=query, page=page + 1) \
+        if total > page * current_app.config['POSTS_PER_PAGE'] else None
+    prev_url = url_for('search', q=query, page=page - 1) \
+        if page > 1 else None
+    
+    return render_template('search.html', title='Search Results', posts=posts,
+    next_url=next_url, prev_url=prev_url)
