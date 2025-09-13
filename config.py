@@ -8,10 +8,15 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     POSTS_PER_PAGE = 3
     
-    MAIL_SERVER='localhost'#or os.environ.get('MAIL_SERVER')
-    MAIL_PORT=8025#int(os.environ.get('MAIL_PORT') or 25)
-    MAIL_USE_TLS=False#os.environ.get('MAIL_USE_TLS') is not None
-    MAIL_USERNAME = None#os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = None#os.environ.get('MAIL_PASSWORD')
+    MAIL_SERVER=None  # Disable mail server for development to prevent SMTP errors
+    MAIL_PORT=None    # Disable mail port
+    MAIL_USE_TLS=False
+    MAIL_USERNAME = None
+    MAIL_PASSWORD = None
     ADMINS = ['your-email@example.com']
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
+    
+    # Rate Limiting Configuration
+    RATELIMIT_STORAGE_URL = os.environ.get('REDIS_URL') or 'memory://'
+    RATELIMIT_DEFAULT = "1000 per day, 100 per hour"
+    RATELIMIT_HEADERS_ENABLED = True

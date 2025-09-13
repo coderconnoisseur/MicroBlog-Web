@@ -1,0 +1,56 @@
+2025-09-13 11:16:20,051 INFO: Microblog startup [in D:\py2\Projectdir\__init__.py:52]
+2025-09-13 11:22:34,481 INFO: Microblog startup [in D:\py2\Projectdir\__init__.py:52]
+2025-09-13 11:26:52,536 INFO: Microblog startup [in D:\py2\Projectdir\__init__.py:52]
+2025-09-13 11:29:51,153 INFO: Microblog startup [in D:\py2\Projectdir\__init__.py:52]
+2025-09-13 11:38:48,180 INFO: Microblog startup [in D:\py2\Projectdir\__init__.py:52]
+2025-09-13 12:19:18,176 INFO: Microblog startup [in D:\py2\Projectdir\__init__.py:52]
+2025-09-13 12:26:09,597 INFO: Microblog startup [in D:\py2\Projectdir\__init__.py:52]
+2025-09-13 12:26:13,498 ERROR: Exception on /login [GET] [in D:\py2\venv\Lib\site-packages\flask\app.py:875]
+Traceback (most recent call last):
+  File "D:\py2\venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\py2\venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\py2\venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\py2\venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\py2\Projectdir\routes.py", line 51, in login
+    return render_template('login.html',form = form,title = 'Sign in')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\py2\venv\Lib\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\py2\venv\Lib\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\py2\venv\Lib\site-packages\jinja2\environment.py", line 1304, in render
+    self.environment.handle_exception()
+  File "D:\py2\venv\Lib\site-packages\jinja2\environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "D:\py2\Projectdir\templates\login.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "D:\py2\Projectdir\templates\base.html", line 217, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\py2\Projectdir\templates\login.html", line 213, in block 'content'
+    <a href="{{ url_for('auth.reset_password_request') }}" class="text-sm text-slate-600 hover:text-slate-800 transition-colors">
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\py2\venv\Lib\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\py2\venv\Lib\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\py2\venv\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'auth.reset_password_request'. Did you mean 'reset_password_request' instead?
+2025-09-13 12:27:23,838 INFO: Microblog startup [in D:\py2\Projectdir\__init__.py:52]
+2025-09-13 12:30:10,382 INFO: Microblog startup [in D:\py2\Projectdir\__init__.py:52]
+2025-09-13 12:30:40,446 INFO: Microblog startup [in D:\py2\Projectdir\__init__.py:52]
+2025-09-13 12:36:46,926 INFO: Microblog startup [in D:\py2\Projectdir\__init__.py:65]
+2025-09-13 12:37:42,883 INFO: Microblog startup [in D:\py2\Projectdir\__init__.py:65]

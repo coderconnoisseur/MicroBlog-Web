@@ -1,4 +1,4 @@
-from Projectdir import app,db,login
+from Projectdir import app,db,login,limiter
 from flask import render_template , redirect,flash,url_for,request
 from Projectdir.forms import LoginForm ,EditProfileForm,EmptyForm,PostForm,ResetPasswordRequestForm,RegistrationForm,ResetPasswordForm
 from flask_login import current_user,login_user,logout_user,login_required
@@ -11,6 +11,7 @@ from datetime import datetime
 @app.route('/',methods=['GET','POST'])
 @app.route('/index',methods=['GET','POST'])
 @login_required
+@limiter.limit("10 per minute", methods=['POST'])  # Limit post creation
 def index():
     form=PostForm()
     if form.validate_on_submit():
@@ -34,6 +35,7 @@ def index():
                         prev_url=prev_url)
 
 @app.route('/login',methods=['GET','POST'])
+@limiter.limit("5 per minute")  # Limit login attempts
 def login():
     form = LoginForm()
     if current_user.is_authenticated: 
@@ -56,6 +58,7 @@ def logout():
     return redirect(url_for('index'))
 
 @app.route('/register',methods=['GET','POST'])
+@limiter.limit("3 per minute")  # Limit registration attempts
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -105,6 +108,7 @@ def edit_profile():
 
 @login_required
 @app.route('/follow/<username>',methods=['POST'])
+@limiter.limit("20 per minute")  # Limit follow actions
 def follow(username):
     form=EmptyForm()
     if form.validate_on_submit():
@@ -124,6 +128,7 @@ def follow(username):
 
 @app.route('/unfollow/<username>',methods=['POST'])
 @login_required
+@limiter.limit("20 per minute")  # Limit unfollow actions
 def unfollow(username):
     form = EmptyForm()
     if form.validate_on_submit():
@@ -168,6 +173,7 @@ def Explore():
     
     
 @app.route('/reset_password_request',methods=['GET',"POST"])
+@limiter.limit("2 per minute")  # Limit password reset requests
 def reset_password_request():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -181,6 +187,7 @@ def reset_password_request():
     return render_template('reset_password_request.html',title='Reset Password',form=form)
 
 @app.route('/reset_password/<token>',methods=["GET","POST"])
+@limiter.limit("3 per minute")  # Limit password reset attempts
 def reset_password(token):
     if current_user.is_authenticated:
         return redirect(url_for("index"))
@@ -194,5 +201,22 @@ def reset_password(token):
         flash("Your Password has been reset!!!")
         return redirect(url_for('login'))
     return render_template('reset_password.html',form=form)
+
+@app.route('/api/rate-limit-status')
+@limiter.limit("30 per minute")
+def rate_limit_status():
+    """API endpoint to check current rate limit status"""
+    from flask import jsonify
+    return jsonify({
+        'status': 'ok',
+        'message': 'Rate limiting is active',
+        'limits': {
+            'login': '5 per minute',
+            'register': '3 per minute',
+            'post': '10 per minute',
+            'follow': '20 per minute',
+            'password_reset': '2 per minute'
+        }
+    })
 
         

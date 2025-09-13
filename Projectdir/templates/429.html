@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-[50vh] flex items-center justify-center">
+  <div class="text-center animate-fade-in">
+    <div class="mb-8">
+      <i class="fas fa-exclamation-triangle text-6xl text-amber-500 mb-4"></i>
+    </div>
+    
+    <h1 class="text-4xl font-bold text-gray-900 mb-4">
+      Rate Limit Exceeded
+    </h1>
+    
+    <div class="max-w-md mx-auto mb-8">
+      <p class="text-gray-600 mb-4">
+        You've made too many requests in a short period of time. Please wait before trying again.
+      </p>
+      
+      {% if error %}
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+        <p class="text-amber-800 text-sm">
+          <i class="fas fa-info-circle mr-2"></i>
+          {{ error }}
+        </p>
+      </div>
+      {% endif %}
+      
+      {% if retry_after %}
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <p class="text-blue-800 text-sm">
+          <i class="fas fa-clock mr-2"></i>
+          Please wait {{ retry_after }} seconds before trying again.
+        </p>
+      </div>
+      {% endif %}
+    </div>
+    
+    <div class="space-y-4">
+      <button onclick="window.history.back()" 
+              class="px-6 py-3 bg-gradient-to-r from-primary-500 to-violet-600 text-white rounded-lg hover:from-primary-600 hover:to-violet-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Go Back
+      </button>
+      
+      <div>
+        <a href="{{ url_for('index') }}" 
+           class="text-primary-600 hover:text-primary-800 transition-colors">
+          <i class="fas fa-home mr-2"></i>
+          Return to Home
+        </a>
+      </div>
+    </div>
+    
+    <div class="mt-12 text-sm text-gray-500">
+      <p>
+        <i class="fas fa-shield-alt mr-2"></i>
+        Rate limiting helps protect our service and ensures fair usage for all users.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+// Auto-refresh after retry_after period
+{% if retry_after %}
+setTimeout(function() {
+  location.reload();
+}, {{ retry_after * 1000 }});
+{% endif %}
+</script>
+{% endblock %}
