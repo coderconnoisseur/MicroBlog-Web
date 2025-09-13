@@ -219,4 +219,14 @@ def rate_limit_status():
         }
     })
 
+@app.route('/health')
+def health_check():
+    """Simple health check endpoint for deployment"""
+    from flask import jsonify
+    return jsonify({
+        'status': 'healthy',
+        'message': 'Microblog is running',
+        'version': '1.0.0'
+    })
+
         

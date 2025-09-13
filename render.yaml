@@ -3,9 +3,11 @@ services:
     name: microblog
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn wsgi:app --bind 0.0.0.0:10000
+    startCommand: gunicorn -c gunicorn_config.py wsgi:app
     envVars:
       - key: FLASK_APP
         value: PY2.py
       - key: SECRET_KEY
         generateValue: true
+      - key: FLASK_ENV
+        value: production
