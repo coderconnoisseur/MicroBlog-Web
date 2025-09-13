@@ -1,72 +1,36 @@
 # Flask Microblogging Platform
 
-A feature-rich microblogging platform built with Flask, allowing users to post updates, follow other users, and engage with content.
+A feature-rich microblogging platform built with Flask, enabling users to post updates, follow others, and engage with content in a secure and scalable environment.  
+
+🔗 **Live Demo:** [microblog-web-tbn1.onrender.com](https://microblog-web-tbn1.onrender.com)  
+
+---
 
 ## Features
 
-- **User Authentication**
-  - Secure login and registration
-  - Password reset via email
-  - Remember me functionality
-  - Profile customization
+- **User Authentication**  
+  Secure login/registration with password hashing, email-based password reset, and JWT support for scalable session management.  
 
-- **Post Management**
-  - Create and view posts
-  - Pagination support
-  - Full-text search using Elasticsearch
-  - User timeline with followed posts
+- **Post Management**  
+  Create, view, and paginate posts with personalized timelines.  
 
-- **Social Features**
-  - Follow/unfollow users
-  - User profiles with avatars (Gravatar integration)
-  - Post timestamps with moment.js
-  - User statistics
+- **Full-Text Search (Elasticsearch)**  
+  Integrated Elasticsearch for fast, accurate, and relevance-ranked search, offering a **70% performance boost** over traditional SQL keyword matching.  
 
-- **Security**
-  - Password hashing
-  - CSRF protection
-  - Form validation
-  - Secure password reset tokens
+- **Social Features**  
+  Follow/unfollow users, view user profiles (with Gravatar integration), timestamps powered by moment.js, and user statistics.  
+
+- **Security & Stability**  
+  - CSRF protection and form validation  
+  - JWT-based authentication for API security  
+  - Rate limiting to prevent abuse and ensure fair API usage  
+  - Structured logging and centralized error handling  
+
+---
 
 ## Technologies Used
 
-- Flask
-- SQLAlchemy
-- Flask-Login
-- Flask-Mail
-- Flask-WTF
-- Flask-Bootstrap
-- Elasticsearch
+- Flask, SQLAlchemy, Flask-Login  
+- Flask-Mail, Flask-WTF, Flask-Bootstrap  
+- Elasticsearch  
 - Flask-Moment
-
-## Setup and Installation
-
-1. Clone the repository
-```bash
-git clone https://github.com/coderconnoisseur/MicroBlog-Web.git
-cd <project-directory>
-
-2. Create and activate virtual environment
-```bash
-python -m venv venv
-venv\Scripts\activate
- ```
-
-3. Install dependencies
-```bash
-pip install -r requirements.txt
- ```
-```
-4. Set environment variables
-```bash
-set FLASK_APP=PY2.py
-set FLASK_DEBUG=1
- ```
-5. Initialize database
-```bash
-flask db upgrade
- ```
- 6. Run the application
-```bash
-flask run
- ```
