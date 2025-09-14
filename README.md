@@ -1,4 +1,7 @@
-# Flask Microblogging Platform
+# Microblogging Platform
+![Flask](https://img.shields.io/badge/Flask-000000?logo=flask&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?logo=databricks&logoColor=white)
+![Elasticsearch](https://img.shields.io/badge/Elasticsearch-005571?logo=elasticsearch&logoColor=white)
 
 A feature-rich microblogging platform built with Flask, enabling users to post updates, follow others, and engage with content in a secure and scalable environment.  
 
